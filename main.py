@@ -3,8 +3,8 @@ import asyncio
 from analytics.analytics_client import produce_machine_iot_client
 from core.control_loop import ControlLoop
 from implementations.infra_red_sensor_controller import IRSensorController
-from implementations.mock_motor_controller import MockMotorController
 from implementations.observability_controller import ObservabilityController
+from implementations.simple_motor_controller import SimpleMotorController
 
 
 async def main():
@@ -12,11 +12,12 @@ async def main():
     analytics_client = produce_machine_iot_client()
 
     control_loop = ControlLoop(
-        motor=MockMotorController(),
+        motor=SimpleMotorController(),
         sensor=IRSensorController(),
         observability=ObservabilityController(
             analytics_client=analytics_client
         ),
+        delay_millis=100
     )
     try:
         await control_loop.run()

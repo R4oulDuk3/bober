@@ -39,19 +39,21 @@ class ControlLoop:
         print("Starting loop")
         while self.is_running:
             try:
-                self.machine_speed += 1
+                print("Processing main loop!")
                 box_visible_currently = self.sensor.is_box_visible()
+                print(f"Sensor data {box_visible_currently}")
 
                 # Detect rising edge on sensor 1 (new box detected)
                 if not box_visible_in_previous_cycle and box_visible_currently:
                     self.box_count += 1
+                    print("New box appeared")
 
                 box_visible_in_previous_cycle = box_visible_currently
                 await self.observability.observe_running_state(
                     box_count=self.box_count,
                     machine_speed=self.machine_speed
                 )
-                time.sleep(self.delay_millis)
+                time.sleep(self.delay_millis / 1000)
             except Exception as e:
                 await self.observability.observe_machine_status_changed(
                     box_count=self.box_count,

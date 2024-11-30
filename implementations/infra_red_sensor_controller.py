@@ -6,13 +6,10 @@ from interfaces.sensor_interface import ISensorController
 
 
 class IRSensorController(ISensorController):
-    def __init__(self, pin: int = 17):
+    def __init__(self, pin: int = 22):
         self.ir_sensor = DigitalInputDevice(pin)
 
     def is_box_visible(self) -> bool:
-        # The IR sensor returns True when no object is detected
-        # and False when an object is detected
-        # So we need to invert the value to match the semantic meaning of "is_box_visible"
         return not self.ir_sensor.value
 
 
