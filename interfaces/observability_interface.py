@@ -1,9 +1,9 @@
 
-# src/interfaces/logging_interface.py
+# src/interfaces/observability_interface.py
 from abc import ABC, abstractmethod
 from typing import Any
 
-class ILoggingController(ABC):
+class IObservabilityController(ABC):
     @abstractmethod
     def log_machine_status(self, status: str) -> None:
         pass

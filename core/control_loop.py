@@ -2,14 +2,14 @@
 import time
 from ..interfaces.motor_interface import IMotorController
 from ..interfaces.sensor_interface  import ISensorController
-from ..interfaces.logging_interface import ILoggingController
+from ..interfaces.observability_interface import IObservabilityController
 
 
 class ControlLoop:
     def __init__(self,
                  motor: IMotorController,
                  sensor: ISensorController,
-                 logger: ILoggingController):
+                 logger: IObservabilityController):
         self.motor = motor
         self.sensor = sensor
         self.logger = logger
@@ -34,7 +34,7 @@ class ControlLoop:
                     self.logger.log_box_count(self.box_count)
 
                 last_sensor1_state = current_sensor1_state
-
+                # observe_state
                 time.sleep(0.01)  # Small delay to prevent CPU hogging
 
             except Exception as e:

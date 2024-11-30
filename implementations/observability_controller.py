@@ -1,12 +1,13 @@
-# src/implementations/logging_controller.py
-from ..interfaces.logging_interface import ILoggingController
+# src/implementations/observability_controller.py
+from analytics.analytics_client import MachineIoTClient
+from ..interfaces.observability_interface import IObservabilityController
 from datetime import datetime
 
 
-class LoggingController(ILoggingController):
+class ObservabilityController(IObservabilityController):
     is_logging: bool
 
-    def __init__(self):
+    def __init__(self, analytics_client: MachineIoTClient):
         self.is_logging = False
 
     def log_machine_status(self, status: str) -> None:
