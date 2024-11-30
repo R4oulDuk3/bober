@@ -1,16 +1,27 @@
-# This is a sample Python script.
+import asyncio
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from analytics.analytics_client import produce_machine_iot_client
+from core.control_loop import ControlLoop
+from implementations.infra_red_sensor_controller import IRSensorController
+from implementations.mock_motor_controller import MockMotorController
+from implementations.observability_controller import ObservabilityController
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm abc   abc')
+async def main():
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    analytics_client = produce_machine_iot_client()
+
+    control_loop = ControlLoop(
+        motor=MockMotorController(),
+        sensor=IRSensorController(),
+        observability=ObservabilityController(
+            analytics_client=analytics_client
+        ),
+    )
+    try:
+        await control_loop.run()
+    except:
+        await control_loop.stop()
+
+if __name__ == "__main__":
+    asyncio.run(main())

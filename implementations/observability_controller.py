@@ -36,7 +36,7 @@ class ObservabilityController(IObservabilityController):
 
         )
 
-    async def observe_machine_state(self, box_count: int, machine_speed: int, status: MachineStatus ) -> None:
+    async def observe_running_state(self, box_count: int, machine_speed: int) -> None:
         print(f"Current state: box_count={box_count}, machine_speed={machine_speed}")
         await self.analytics_client.send_telemetry(
             total_output_unit_count=box_count,

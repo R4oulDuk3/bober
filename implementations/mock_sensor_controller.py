@@ -1,8 +1,8 @@
-# src/implementations/sensor_controller.py
+# src/implementations/mock_sensor_controller.py
 from interfaces.sensor_interface import ISensorController
 
 
-class SensorController(ISensorController):
+class MockSensorController(ISensorController):
 
     def __init__(self):
         self.counter = 0

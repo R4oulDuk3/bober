@@ -1,6 +1,6 @@
 from interfaces.motor_interface import IMotorController
 
-class MotorController(IMotorController):
+class MockMotorController(IMotorController):
 
     default_speed: float
     current_speed: float
