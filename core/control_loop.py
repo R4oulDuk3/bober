@@ -22,28 +22,28 @@ class ControlLoop:
         self.observability = observability
         self.box_count = 0
         self.is_running = False
+        self.machine_speed = 1
 
     async def run(self) -> None:
         self.is_running = True
         self.motor.start_motor()
-        #self.sensor.start_sensor1()
-        #self.sensor.start_sensor2()
 
-        last_sensor1_state = False
+        box_visible_in_previous_cycle = False
         print("Starting loop")
         while self.is_running:
             try:
-                current_sensor1_state = self.sensor.is_sensor1_triggered()
+                self.machine_speed += 1
+                box_visible_currently = self.sensor.is_box_visible()
 
                 # Detect rising edge on sensor 1 (new box detected)
-                if current_sensor1_state and not last_sensor1_state and not ( current_sensor1_state is False):
+                if not box_visible_in_previous_cycle and box_visible_currently:
                     self.box_count += 1
 
-                last_sensor1_state = current_sensor1_state
+                box_visible_in_previous_cycle = box_visible_currently
                 await self.observability.observe_machine_state(
                     box_count=self.box_count,
                     status=MachineStatus.RUNNING,
-                    machine_speed=5
+                    machine_speed=self.machine_speed
                 )
                 time.sleep(1)  # Small delay to prevent CPU hogging
                 # print("Running...")
@@ -51,21 +51,20 @@ class ControlLoop:
                 await self.observability.observe_machine_state(
                     box_count=self.box_count,
                     status=MachineStatus.ERROR,
-                    machine_speed=5
+                    machine_speed=self.machine_speed
                 )
 
-                self.stop()
+                await self.stop()
                 raise
 
     async def stop(self) -> None:
         self.is_running = False
         self.motor.stop_motor()
-        self.sensor.stop_sensor1()
-        self.sensor.stop_sensor2()
+
         await self.observability.observe_machine_state(
             box_count=self.box_count,
             status=MachineStatus.STOPPED,
-            machine_speed=0
+            machine_speed=self.machine_speed
         )
 
 

@@ -51,7 +51,7 @@ class MachineIoTClient:
                 "datasource": "172.17.2.1:80",
                 "machineid": self.machine_id,
                 "totaloutputunitcount": total_output_unit_count,
-                "machineSpeed": machine_speed,
+                "machinespeed": machine_speed,
             }
         }
 
