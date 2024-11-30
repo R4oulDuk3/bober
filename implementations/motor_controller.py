@@ -1,4 +1,4 @@
-from ..interfaces.motor_interface import IMotorController
+from interfaces.motor_interface import IMotorController
 
 class MotorController(IMotorController):
 

@@ -1,5 +1,5 @@
 # src/implementations/sensor_controller.py
-from ..interfaces.sensor_interface import ISensorController
+from interfaces.sensor_interface import ISensorController
 
 
 class SensorController(ISensorController):

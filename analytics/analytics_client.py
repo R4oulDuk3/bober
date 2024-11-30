@@ -98,6 +98,12 @@ class MachineIoTClient:
         await self.device_client.send_message(msg)
 
 
+def produce_machine_iot_client() -> MachineIoTClient :
+    connection_string = "HostName=ra-develop-bobstconnect-01.azure-devices.net;DeviceId=LAUZHACKPI6;SharedAccessKey=Lk8/pNBXRT7jFKvD2kWMDZy11Z82rETIQAIoTNEZCq4="
+    client = MachineIoTClient(connection_string, "lauzhack-pi6")
+    return client
+
+
 async def main():
     # Replace with your IoT Hub connection string
     connection_string = "HostName=ra-develop-bobstconnect-01.azure-devices.net;DeviceId=LAUZHACKPI6;SharedAccessKey=Lk8/pNBXRT7jFKvD2kWMDZy11Z82rETIQAIoTNEZCq4="

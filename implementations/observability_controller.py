@@ -1,6 +1,6 @@
 # src/implementations/observability_controller.py
 from analytics.analytics_client import MachineIoTClient
-from ..interfaces.observability_interface import IObservabilityController
+from interfaces.observability_interface import IObservabilityController
 from datetime import datetime
 
 
