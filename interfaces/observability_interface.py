@@ -3,23 +3,15 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+from enums import MachineStatus
+
+
 class IObservabilityController(ABC):
+
     @abstractmethod
-    def log_machine_status(self, status: str) -> None:
+    async def observe_machine_state(self, box_count: int, machine_speed: int, status: MachineStatus ) -> None:
         pass
 
     @abstractmethod
-    def log_box_count(self, count: int) -> None:
-        pass
-
-    @abstractmethod
-    def log_track_speed(self, speed: float) -> None:
-        pass
-
-    @abstractmethod
-    def start_logging(self) -> None:
-        pass
-
-    @abstractmethod
-    def stop_logging(self) -> None:
+    async def observe_machine_status_changed(self, box_count: int, machine_speed: int, status: MachineStatus, event: str) -> None:
         pass

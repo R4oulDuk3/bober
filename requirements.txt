@@ -1,2 +1,4 @@
 gpiozero
 azure-iot-device
+pigpio
+lgpio

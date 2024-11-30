@@ -55,6 +55,8 @@ class MachineIoTClient:
             }
         }
 
+        print(f"Sending analytics data to IoT Hub: {telemetry_data}")
+
         message = Message(json.dumps(telemetry_data))
         message.content_type = "application/json"
         message.content_encoding = "utf-8"
