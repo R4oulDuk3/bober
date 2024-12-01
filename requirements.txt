@@ -5,3 +5,4 @@ lgpio
 rpi-lgpio
 aiozmq
 zmq
+aiohttp
