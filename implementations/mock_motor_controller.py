@@ -18,10 +18,10 @@ class MockMotorController(IMotorController):
         self.is_running = False
 
     def speed_up(self) -> None:
-        self.speed_up()
+        pass
 
     def slow_down(self) -> None:
-        self.slow_down()
+        pass
 
     def get_status(self) -> dict:
         return {

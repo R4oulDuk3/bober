@@ -78,6 +78,12 @@ class GradualMotor:
         self.cleanup()
 
 class SimpleMotorController(IMotorController):
+    def slow_down(self) -> None:
+        pass
+
+    def speed_up(self) -> None:
+        pass
+
     def __init__(self):
         """Initialize the motor controller with default values."""
         self.current_speed = 0.0

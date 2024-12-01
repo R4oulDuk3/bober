@@ -11,3 +11,13 @@ class IMotorController(ABC):
     def stop_motor(self) -> None:
         """Stop motor completely"""
         pass
+
+    @abstractmethod
+    def speed_up(self) -> None:
+        """Stop motor completely"""
+        pass
+
+    @abstractmethod
+    def slow_down(self) -> None:
+        pass
+

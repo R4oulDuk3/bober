@@ -2,6 +2,7 @@ import asyncio
 
 from analytics.analytics_client import produce_machine_iot_client
 from core.control_loop import ControlLoop
+from implementations.advanced_motor_controller import AdvancedMotorController
 from implementations.infra_red_sensor_controller import IRSensorController
 from implementations.in_memory_observability_controller import InMemoryObservabilityController
 from implementations.simple_motor_controller import SimpleMotorController
@@ -12,7 +13,7 @@ async def main():
     analytics_client = produce_machine_iot_client()
 
     control_loop = ControlLoop(
-        motor=SimpleMotorController(),
+        motor=AdvancedMotorController(),
         sensor=IRSensorController(),
         observability=InMemoryObservabilityController(
             analytics_client=analytics_client
