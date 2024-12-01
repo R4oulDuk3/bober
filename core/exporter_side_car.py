@@ -3,24 +3,52 @@ import json
 import aiozmq
 import zmq
 
+from analytics.analytics_client import MachineIoTClient
+
 
 class SideCarExporter:
-    def __init__(self):
-        self.metrics = {}
+    def __init__(self, analytics_client: MachineIoTClient = MachineIoTClient.produce()):
+        self.analytics_client = analytics_client
 
     async def process_metric(self, event):
         event_type = event['type']
 
         if event_type == 'export_telemetry':
+            data = event['data']
+
             print(f"TELEMETRY: timestamp={event['timestamp']}")
-            print(f"DATA: {json.dumps(event['data'], indent=2)}")
+            print(f"DATA: {json.dumps(data, indent=2)}")
             print("-" * 50)
+            total_output_unit_count=  data["totaloutputunitcount"]
+            machine_speed= data["machinespeed"]
+            timestamp = event['timestamp']
+            await self.analytics_client.send_telemetry(
+                timestamp=timestamp,
+                machine_speed=machine_speed,
+                total_output_unit_count=total_output_unit_count,
+            )
+
 
         elif event_type == 'export_event':
             print(f"EVENT: {event['event']}")
+            data = event['data']
+
             print(f"TIMESTAMP: {event['timestamp']}")
             print(f"DATA: {json.dumps(event['data'], indent=2)}")
             print("-" * 50)
+            total_output_unit_count = data["totaloutputunitcount"]
+            machine_speed = data["machinespeed"]
+            timestamp = event['timestamp']
+            event = event['event']
+            await self.analytics_client.send_machine_event(
+                timestamp=timestamp,
+                machine_speed=machine_speed,
+                total_output_unit_count=total_output_unit_count,
+                event_type=event,
+                job_id="job_id"
+            )
+
+
 
 
 class AsyncSubscriber:

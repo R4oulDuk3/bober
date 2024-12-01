@@ -14,8 +14,8 @@ class QueuedObservabilityController(IObservabilityController):
         await self.publisher.publish_event(
             event_name=event,
             data={
-                "total_output_unit_count": box_count,
-                "machine_speed": machine_speed,
+                "totaloutputunitcount": box_count,
+                "machinespeed": machine_speed,
             }
         )
 

@@ -6,6 +6,13 @@ from azure.iot.device import Message
 
 
 class MachineIoTClient:
+
+    @staticmethod
+    def produce() -> 'MachineIoTClient':
+        connection_string = "HostName=ra-develop-bobstconnect-01.azure-devices.net;DeviceId=LAUZHACKPI6;SharedAccessKey=Lk8/pNBXRT7jFKvD2kWMDZy11Z82rETIQAIoTNEZCq4="
+        client = MachineIoTClient(connection_string, "lauzhack-pi6")
+        return client
+
     def __init__(self, connection_string: str, machine_id: str):
         """
         Initialize Azure IoT Hub client for a machine.
@@ -34,20 +41,25 @@ class MachineIoTClient:
             await self.device_client.disconnect()
             self.is_connected = False
 
-    async def send_telemetry(self, total_output_unit_count: int, machine_speed: float):
+    async def send_telemetry(self, total_output_unit_count: int, machine_speed: float,
+                             timestamp: str = datetime.datetime.utcnow().isoformat() + "Z",
+                             ):
         """
         Send telemetry data to IoT Hub.
 
         Args:
             total_output_unit_count: Total units produced
             machine_speed: Current machine speed
+            :param machine_speed:
+            :param total_output_unit_count:
+            :param timestamp:
         """
         if not self.is_connected:
             await self.connect()
 
         telemetry_data = {
             "telemetry": {
-                "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+                "timestamp": timestamp,
                 "datasource": "172.17.2.1:80",
                 "machineid": self.machine_id,
                 "totaloutputunitcount": total_output_unit_count,
@@ -69,7 +81,8 @@ class MachineIoTClient:
             event_type: str,
             job_id: str,
             total_output_unit_count: int,
-            machine_speed: float
+            machine_speed: float,
+            timestamp: str = datetime.datetime.utcnow().isoformat() + "Z",
     ):
         """
         Send machine event to IoT Hub.
@@ -79,6 +92,11 @@ class MachineIoTClient:
             job_id: Identifier for the current job
             total_output_unit_count: Total units produced
             machine_speed: Current machine speed
+            :param machine_speed:
+            :param total_output_unit_count:
+            :param job_id:
+            :param event_type:
+            :param timestamp:
         """
         if not self.is_connected:
             await self.connect()
@@ -89,7 +107,7 @@ class MachineIoTClient:
             "jobId": job_id,
             "totalOutputUnitCount": total_output_unit_count,
             "machineSpeed": machine_speed,
-            "timestamp": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "timestamp": timestamp,
         }
 
         msg = Message(json.dumps([message]))

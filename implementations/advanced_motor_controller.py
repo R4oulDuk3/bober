@@ -51,6 +51,9 @@ class AdvancedMotor:
 
 class AdvancedMotorController(IMotorController):
 
+    def get_speed(self) -> int:
+        return self.motor.get_current_speed()
+
     def slow_down(self) -> None:
         if self.isRunning:
             self.motor.speed_down()

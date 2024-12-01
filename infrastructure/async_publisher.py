@@ -1,6 +1,7 @@
 import asyncio
+import datetime
 import json
-from datetime import datetime
+
 
 import aiozmq
 import zmq
@@ -22,7 +23,7 @@ class AsyncPublisher:
     async def publish_telemetry(self, data: dict):
         event = {
             "type": "export_telemetry",
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
             "data": data
         }
         message = json.dumps(event)
@@ -32,7 +33,7 @@ class AsyncPublisher:
     async def publish_event(self, event_name: str, data: dict):
         event = {
             "type": "export_event",
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
             "event": event_name,
             "data": data
         }

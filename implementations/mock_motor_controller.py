@@ -2,6 +2,9 @@ from interfaces.motor_interface import IMotorController
 
 class MockMotorController(IMotorController):
 
+    def get_speed(self) -> int:
+        pass
+
     default_speed: float
     current_speed: float
     is_running: bool
