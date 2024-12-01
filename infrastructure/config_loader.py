@@ -49,7 +49,7 @@ class ConfigLoader:
 
     def is_power_on(self) -> bool:
         """Check if power is on."""
-        return self.get_value('power') == 'on'
+        return self.get_value('power') == 'ON'
 
     def get_speed(self) -> int:
         """Get the speed value."""

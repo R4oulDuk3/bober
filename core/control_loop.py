@@ -56,13 +56,13 @@ class ControlLoop:
             self.motor.start_motor()
         elif not self.is_on and self.motor.is_running():
             print("Turning the motor off!")
-            self.motor.start_motor()
+            self.motor.stop_motor()
 
     def manage_speed(self):
 
         if not self.is_on:
             return
-        
+
         machine_speed = self.motor.get_speed()
         if machine_speed == self.desired_speed:
             return
