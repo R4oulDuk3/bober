@@ -1,4 +1,4 @@
-# src/implementations/observability_controller.py
+# src/implementations/in_memory_observability_controller.py
 from enum import Enum
 
 from analytics.analytics_client import MachineIoTClient
@@ -22,7 +22,7 @@ def map_status_to_event(status: MachineStatus) -> MachineEvent:
         return MachineEvent.POWER_OFF
 
 
-class ObservabilityController(IObservabilityController):
+class InMemoryObservabilityController(IObservabilityController):
 
     def map_machine_status_to_machine_event(self):
         pass
@@ -36,7 +36,7 @@ class ObservabilityController(IObservabilityController):
 
         )
 
-    async def observe_running_state(self, box_count: int, machine_speed: int) -> None:
+    async def observe_running_state(self, box_count: int, machine_speed: float) -> None:
         print(f"Current state: box_count={box_count}, machine_speed={machine_speed}")
         await self.analytics_client.send_telemetry(
             total_output_unit_count=box_count,

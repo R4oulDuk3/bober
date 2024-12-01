@@ -4,6 +4,7 @@ import zmq
 import json
 from datetime import datetime
 
+from infrastructure.async_publisher import AsyncPublisher
 
 
 async def main():

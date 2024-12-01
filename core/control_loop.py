@@ -1,11 +1,13 @@
 # src/core/control_loop.py
 import time
 
-from analytics.analytics_client import produce_machine_iot_client
+# from analytics.analytics_client import produce_machine_iot_client
 from enums import MachineStatus
 from implementations.mock_motor_controller import MockMotorController
-from implementations.observability_controller import ObservabilityController
+from implementations.in_memory_observability_controller import InMemoryObservabilityController
 from implementations.mock_sensor_controller import MockSensorController
+from implementations.queued_observability_controller import QueuedObservabilityController
+from infrastructure.async_publisher import AsyncPublisher
 from interfaces.motor_interface import IMotorController
 from interfaces.sensor_interface  import ISensorController
 from interfaces.observability_interface import IObservabilityController
@@ -80,14 +82,19 @@ class ControlLoop:
 
 async def main():
 
-    analytics_client = produce_machine_iot_client()
+    # analytics_client = produce_machine_iot_client()
+    async_publisher = AsyncPublisher(
+        publish_address="tcp://127.0.0.1:5555"
+    )
 
+    await async_publisher.connect()
     control_loop = ControlLoop(
         motor=MockMotorController(),
         sensor=MockSensorController(),
-        observability=ObservabilityController(
-            analytics_client=analytics_client
+        observability=QueuedObservabilityController(
+            publisher=async_publisher
         ),
+        delay_millis=500
     )
 
     try:

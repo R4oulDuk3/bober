@@ -2,7 +2,6 @@ import asyncio
 import json
 import aiozmq
 import zmq
-from datetime import datetime
 
 
 class SideCarExporter:

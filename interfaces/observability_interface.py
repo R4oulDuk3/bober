@@ -9,7 +9,7 @@ from enums import MachineStatus
 class IObservabilityController(ABC):
 
     @abstractmethod
-    async def observe_running_state(self, box_count: int, machine_speed: int) -> None:
+    async def observe_running_state(self, box_count: int, machine_speed: float) -> None:
         pass
 
     @abstractmethod
