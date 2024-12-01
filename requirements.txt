@@ -3,3 +3,5 @@ azure-iot-device
 pigpio
 lgpio
 rpi-lgpio
+aiozmq
+zmq

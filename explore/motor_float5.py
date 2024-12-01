@@ -2,7 +2,7 @@ from time import sleep
 
 import RPi.GPIO as GPIO
 
-duty_cycle = 100
+duty_cycle = 7.5
 servoPIN = 18
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(servoPIN, GPIO.OUT)

@@ -2,7 +2,7 @@ from gpiozero import DigitalInputDevice
 import time
 
 # Initialize the IR sensor
-ir_sensor = DigitalInputDevice(17)
+ir_sensor = DigitalInputDevice(22)
 
 print("IR Sensor is running. Press CTRL+C to exit")
 
