@@ -6,6 +6,8 @@ import json
 import aiozmq
 import zmq
 
+from analytics.metric import MetricsRegistry
+
 
 class AsyncPublisher:
     def __init__(self, publish_address: str):
@@ -43,7 +45,17 @@ class AsyncPublisher:
 
     async def publish_system_info(self):
         event = {
-            "type": "export_system_info",        }
+            "type": "export_system_info", }
+        message = json.dumps(event)
+        self.pub.write([message.encode()])
+        print(f"Published event: {message}")
+
+    async def flush_metrics(self, registry: MetricsRegistry):
+        data = registry.get_metrics()
+        event = {
+            "type": "flush_metrics",
+            "data": data
+        }
         message = json.dumps(event)
         self.pub.write([message.encode()])
         print(f"Published event: {message}")

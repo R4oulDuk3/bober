@@ -64,6 +64,19 @@ class SideCarExporter:
             except Exception as e:
                 print("Failed sending metrics to backend", e)
 
+        elif event_type == "flush_metrics":
+            print("Received flush_metrics event")
+            try:
+                data = event['data']
+                async with aiohttp.ClientSession() as session:
+                    await session.post(
+                        url=f"{self.backend_host}/api/v1/metrics/send",
+                        json=data
+                    )
+                    print(f"Sent system info to backend {data}" )
+            except Exception as e:
+                print("Failed sending metrics to backend", e)
+
 class AsyncSubscriber:
     def __init__(self, exporter: SideCarExporter, listen_address: str):
         self.exporter = exporter

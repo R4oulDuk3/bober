@@ -2,6 +2,7 @@
 from enum import Enum
 
 from analytics.analytics_client import MachineIoTClient
+from analytics.metric import MetricsRegistry
 from enums import MachineStatus
 from infrastructure.async_publisher import AsyncPublisher
 from interfaces.observability_interface import IObservabilityController
@@ -10,8 +11,11 @@ from datetime import datetime
 class QueuedObservabilityController(IObservabilityController):
 
 
+
     async def observe_system_info(self):
         await self.publisher.publish_system_info()
+        self.metrics_registry.observe_system_metrics()
+        await self.publisher.flush_metrics(self.metrics_registry)
 
     async def observe_machine_status_changed(self, box_count: int, machine_speed: int, status: MachineStatus, event: str) -> None:
         await self.publisher.publish_event(
@@ -32,4 +36,5 @@ class QueuedObservabilityController(IObservabilityController):
 
     def __init__(self, publisher: AsyncPublisher):
         self.publisher = publisher
+        self.metrics_registry = MetricsRegistry()
 
