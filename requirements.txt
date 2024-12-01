@@ -6,3 +6,4 @@ rpi-lgpio
 aiozmq
 zmq
 aiohttp
+psutil

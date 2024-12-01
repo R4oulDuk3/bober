@@ -1,14 +1,18 @@
 import asyncio
 import json
+
+import aiohttp
 import aiozmq
 import zmq
 
 from analytics.analytics_client import MachineIoTClient
+from core.system_info import get_system_info_string, get_system_info
 
 
 class SideCarExporter:
-    def __init__(self, analytics_client: MachineIoTClient = MachineIoTClient.produce()):
+    def __init__(self, analytics_client: MachineIoTClient = MachineIoTClient.produce(), backend_host = "http://10.0.4.62:80"):
         self.analytics_client = analytics_client
+        self.backend_host = backend_host
 
     async def process_metric(self, event):
         event_type = event['type']
@@ -47,9 +51,18 @@ class SideCarExporter:
                 event_type=event,
                 job_id="job_id"
             )
-
-
-
+        elif event_type == "export_system_info":
+            print("Received export_system_info event")
+            try:
+                info = get_system_info()
+                async with aiohttp.ClientSession() as session:
+                    await session.post(
+                        url=f"{self.backend_host}/api/v1/system/info",
+                        json=info
+                    )
+                    print(f"Sent system info to backend {info}" )
+            except Exception as e:
+                print("Failed sending metrics to backend", e)
 
 class AsyncSubscriber:
     def __init__(self, exporter: SideCarExporter, listen_address: str):
@@ -70,6 +83,7 @@ class AsyncSubscriber:
     async def process_message(self, message):
         try:
             event = json.loads(message.decode())
+            print(f"Received event {event}")
             await self.exporter.process_metric(event)
         except Exception as e:
             print(f"Error processing message: {e}")

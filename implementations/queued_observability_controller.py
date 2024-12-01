@@ -10,6 +10,9 @@ from datetime import datetime
 class QueuedObservabilityController(IObservabilityController):
 
 
+    async def observe_system_info(self):
+        await self.publisher.publish_system_info()
+
     async def observe_machine_status_changed(self, box_count: int, machine_speed: int, status: MachineStatus, event: str) -> None:
         await self.publisher.publish_event(
             event_name=event,

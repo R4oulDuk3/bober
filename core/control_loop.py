@@ -34,9 +34,10 @@ class ControlLoop:
         self.last_telemetry_timestamp = 0
         self.telemetry_send_threshold = 10
 
-    def try_reload_config(self):
+    async def try_reload_config(self):
         if self.config_loader.should_reload():
             self.config_loader.reload_config()
+            await self.observability.observe_system_info()
             print(f"Reloaded config {self.config_loader.config}")
 
         self.desired_speed = self.config_loader.get_speed()
@@ -80,11 +81,12 @@ class ControlLoop:
             event="Process Started",
             status=MachineStatus.RUNNING
         )
+
         box_visible_in_previous_cycle = False
         print("Starting loop")
         while self.is_running:
             try:
-                self.try_reload_config()
+                await self.try_reload_config()
                 self.manage_speed()
                 box_visible_currently = self.sensor.is_box_visible()
 

@@ -40,3 +40,10 @@ class AsyncPublisher:
         message = json.dumps(event)
         self.pub.write([message.encode()])
         print(f"Published event: {message}")
+
+    async def publish_system_info(self):
+        event = {
+            "type": "export_system_info",        }
+        message = json.dumps(event)
+        self.pub.write([message.encode()])
+        print(f"Published event: {message}")
