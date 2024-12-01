@@ -78,6 +78,9 @@ class GradualMotor:
         self.cleanup()
 
 class SimpleMotorController(IMotorController):
+    def is_running(self) -> bool:
+        return self.is_running
+
     def get_speed(self) -> int:
         pass
 

@@ -27,6 +27,7 @@ class ControlLoop:
         self.sensor = sensor
         self.observability = observability
         self.box_count = 0
+        self.is_on = True
         self.is_running = False
         self.desired_speed = 10
         self.config_loader = config_loader
@@ -41,9 +42,27 @@ class ControlLoop:
             print(f"Reloaded config {self.config_loader.config}")
 
         self.desired_speed = self.config_loader.get_speed()
+        new_power_value = self.config_loader.is_power_on()
+
+        if new_power_value != self.is_on:
+            print(f"Machine power switched! [Previous {self.is_on}, current {new_power_value}]")
+            self.is_on = new_power_value
+
         # print(f"Updated desired speed to {self.desired_speed}")
 
+    def handle_power_switch(self):
+        if self.is_on and not self.motor.is_running():
+            print("Turning the motor on!")
+            self.motor.start_motor()
+        elif not self.is_on and self.motor.is_running():
+            print("Turning the motor off!")
+            self.motor.start_motor()
+
     def manage_speed(self):
+
+        if not self.is_on:
+            return
+        
         machine_speed = self.motor.get_speed()
         if machine_speed == self.desired_speed:
             return
@@ -87,6 +106,7 @@ class ControlLoop:
         while self.is_running:
             try:
                 await self.try_reload_config()
+                self.handle_power_switch()
                 self.manage_speed()
                 box_visible_currently = self.sensor.is_box_visible()
 

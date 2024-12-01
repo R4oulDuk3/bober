@@ -1,6 +1,10 @@
 from interfaces.motor_interface import IMotorController
 
+
 class MockMotorController(IMotorController):
+
+    def is_running(self) -> bool:
+        return self.is_running
 
     def get_speed(self) -> int:
         pass

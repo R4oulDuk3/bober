@@ -1,5 +1,7 @@
 # src/interfaces/motor_interface.py
 from abc import ABC, abstractmethod
+from xmlrpc.client import boolean
+
 
 class IMotorController(ABC):
     @abstractmethod
@@ -22,5 +24,9 @@ class IMotorController(ABC):
 
     @abstractmethod
     def get_speed(self) -> int:
+        pass
+
+    @abstractmethod
+    def is_running(self) -> bool:
         pass
 
