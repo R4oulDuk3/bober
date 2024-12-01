@@ -64,6 +64,7 @@ class MachineIoTClient:
                 "machineid": self.machine_id,
                 "totaloutputunitcount": total_output_unit_count,
                 "machinespeed": machine_speed,
+                "totalworkingenergy": (machine_speed - 10) * 10
             }
         }
 
@@ -108,6 +109,8 @@ class MachineIoTClient:
             "totalOutputUnitCount": total_output_unit_count,
             "machineSpeed": machine_speed,
             "timestamp": timestamp,
+            "totalworkingenergy": (machine_speed - 10) * 10
+
         }
 
         msg = Message(json.dumps([message]))
@@ -115,7 +118,16 @@ class MachineIoTClient:
         msg.content_encoding = "utf-8"
         msg.custom_properties["messageType"] = "MachineEvent"
 
-        await self.device_client.send_message(msg)
+        await self.device_client.send_message([msg])
+
+
+def map_event(event: str):
+    if event.lower() == "started":
+        return 0
+    elif event.lower() == "stopped":
+        return 4
+    elif event.lower() == "running":
+        return 
 
 
 def produce_machine_iot_client() -> MachineIoTClient :

@@ -31,7 +31,7 @@ class MetricsRegistry:
 
         self.metrics[format_metric_name(name)].value += value
 
-    def inc_gauge(self, name: str, value: float):
+    def set_gauge(self, name: str, value: float):
         if format_metric_name(name) not in self.metrics:
             self.metrics[format_metric_name(name)] = Metric.gauge(name, value)
 
@@ -53,37 +53,37 @@ class MetricsRegistry:
         """
         # CPU Metrics
         cpu_percent = psutil.cpu_percent(interval=1)
-        self.inc_gauge("cpu_usage_percent", cpu_percent)
+        self.set_gauge("cpu_usage_percent", cpu_percent)
 
         # CPU Frequency
         cpu_freq = psutil.cpu_freq()
         if cpu_freq:
-            self.inc_gauge("cpu_freq_current", cpu_freq.current)
+            self.set_gauge("cpu_freq_current", cpu_freq.current)
             if hasattr(cpu_freq, 'min'):
-                self.inc_gauge("cpu_freq_min", cpu_freq.min)
+                self.set_gauge("cpu_freq_min", cpu_freq.min)
             if hasattr(cpu_freq, 'max'):
-                self.inc_gauge("cpu_freq_max", cpu_freq.max)
+                self.set_gauge("cpu_freq_max", cpu_freq.max)
 
         # Memory Metrics
         mem = psutil.virtual_memory()
-        self.inc_gauge("memory_total_gb", round(mem.total / (1024 ** 3), 2))
-        self.inc_gauge("memory_available_gb", round(mem.available / (1024 ** 3), 2))
-        self.inc_gauge("memory_used_gb", round(mem.used / (1024 ** 3), 2))
-        self.inc_gauge("memory_percent", mem.percent)
+        self.set_gauge("memory_total_gb", round(mem.total / (1024 ** 3), 2))
+        self.set_gauge("memory_available_gb", round(mem.available / (1024 ** 3), 2))
+        self.set_gauge("memory_used_gb", round(mem.used / (1024 ** 3), 2))
+        self.set_gauge("memory_percent", mem.percent)
 
         # Disk Metrics
         disk = psutil.disk_usage('/')
-        self.inc_gauge("disk_total_gb", round(disk.total / (1024 ** 3), 2))
-        self.inc_gauge("disk_used_gb", round(disk.used / (1024 ** 3), 2))
-        self.inc_gauge("disk_free_gb", round(disk.free / (1024 ** 3), 2))
-        self.inc_gauge("disk_percent", disk.percent)
+        self.set_gauge("disk_total_gb", round(disk.total / (1024 ** 3), 2))
+        self.set_gauge("disk_used_gb", round(disk.used / (1024 ** 3), 2))
+        self.set_gauge("disk_free_gb", round(disk.free / (1024 ** 3), 2))
+        self.set_gauge("disk_percent", disk.percent)
 
         # Load Average (1, 5, 15 minutes)
         try:
             load1, load5, load15 = psutil.getloadavg()
-            self.inc_gauge("load_1min", load1)
-            self.inc_gauge("load_5min", load5)
-            self.inc_gauge("load_15min", load15)
+            self.set_gauge("load_1min", load1)
+            self.set_gauge("load_5min", load5)
+            self.set_gauge("load_15min", load15)
         except (AttributeError, OSError):
             # Might not be available on some systems
             pass
@@ -94,15 +94,15 @@ class MetricsRegistry:
             if temperatures:
                 for name, entries in temperatures.items():
                     for idx, entry in enumerate(entries):
-                        self.inc_gauge(f"temperature_{name}_{idx}", entry.current)
+                        self.set_gauge(f"temperature_{name}_{idx}", entry.current)
         except (AttributeError, OSError):
             # Might not be available on some systems
             pass
 
         # Network IO Counters
         net_io = psutil.net_io_counters()
-        self.inc_gauge("network_bytes_sent", net_io.bytes_sent)
-        self.inc_gauge("network_bytes_recv", net_io.bytes_recv)
+        self.set_gauge("network_bytes_sent", net_io.bytes_sent)
+        self.set_gauge("network_bytes_recv", net_io.bytes_recv)
 
 
 if __name__ == "__main__":

@@ -1,25 +1,28 @@
-from time import sleep
+from ina219 import INA219
+from ina219 import DeviceRangeError
 
-import RPi.GPIO as GPIO
-
-duty_cycle = 14
-servoPIN = 18
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(servoPIN, GPIO.OUT)
-p = GPIO.PWM(servoPIN, 50)
+SHUNT_OHMS = 0.1
 
 
-p.start(duty_cycle) # value from 0 to 100
+def read():
+
+    # Initialize INA219 with SMBus and default address (0x40)
+    ina = INA219(SHUNT_OHMS, busnum=1)  # Specify bus number directly
+
+    # Configure for 32V and 2A
+    ina.configure(voltage_range=ina.RANGE_32V,
+                  gain=ina.GAIN_AUTO,
+                  bus_adc=ina.ADC_128SAMP,
+                  shunt_adc=ina.ADC_128SAMP)
+
+    print("Bus Voltage: %.3f V" % ina.voltage())
+    try:
+        print("Bus Current: %.3f mA" % ina.current())
+        print("Power: %.3f mW" % ina.power())
+        print("Shunt voltage: %.3f mV" % ina.shunt_voltage())
+    except DeviceRangeError as e:
+        print(f"Current measurement error: {e}")
 
 
-
-# p.ChangeDutyCycle(duty_cycle)
-# # p.ChangeFrequency()
-# p.ChangeDutyCycle(duty_cycle) # if want to update
-# p.ChangeDutyCycle(duty_cycle)
-
-sleep(4)
-
-p.stop()
-# import atexit
-# atexit.register(GPIO.cleanup)
+if __name__ == "__main__":
+    read()

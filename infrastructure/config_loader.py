@@ -8,7 +8,7 @@ class ConfigLoader:
         self._config_path = config_path
         self._config = {}
         self._last_reload_time = None
-        self._reload_interval = timedelta(seconds=3)
+        self._reload_interval = timedelta(seconds=1)
         self.reload_config()
 
     def should_reload(self) -> bool:

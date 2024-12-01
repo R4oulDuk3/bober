@@ -55,14 +55,27 @@ class ControlLoop:
 
         # print(f"Updated desired speed to {self.desired_speed}")
 
-    def handle_power_switch(self):
+    async def handle_power_switch(self):
 
         if self.is_on and not self.motor.is_running():
-            print("Turning the motor on!")
+            self.logger.info("Turning the motor on!")
             self.motor.start_motor()
+            await self.observability.observe_machine_status_changed(
+                box_count=self.box_count,
+                machine_speed=self.motor.get_speed(),
+                event="Started",
+                status=MachineStatus.RUNNING
+            )
+
         elif not self.is_on and self.motor.is_running():
-            print("Turning the motor off!")
+            self.logger.info("Turning the motor off!")
             self.motor.stop_motor()
+            await self.observability.observe_machine_status_changed(
+                box_count=self.box_count,
+                machine_speed=self.motor.get_speed(),
+                event="Stopped",
+                status=MachineStatus.STOPPED
+            )
 
 
     def manage_speed(self):
@@ -87,14 +100,17 @@ class ControlLoop:
 
         if time_since_last_send > self.telemetry_send_threshold:
             try:
+                speed = self.motor.get_speed()
+                self.logger.info(f"Send telemetry [box_count {self.box_count}, machine_speed {speed}]")
                 await self.observability.observe_running_state(
                     box_count=self.box_count,
-                    machine_speed=self.motor.get_speed()
+                    machine_speed=speed
                 )
+
                 self.last_telemetry_timestamp = now.timestamp()
                 return True
             except Exception as e:
-                self.logger.error(f"Error sending telemetry: {e}")
+                self.logger.error(f"Error sending telemetry", e)
                 return False
 
 
@@ -104,7 +120,7 @@ class ControlLoop:
         await self.observability.observe_machine_status_changed(
             box_count=self.box_count,
             machine_speed=self.motor.get_speed(),
-            event="Process Started",
+            event="Running",
             status=MachineStatus.RUNNING
         )
 
@@ -115,7 +131,7 @@ class ControlLoop:
 
 
                 await self.try_reload_config()
-                self.handle_power_switch()
+                await self.handle_power_switch()
 
                 self.manage_speed()
                 box_visible_currently = self.sensor.is_box_visible()
@@ -135,7 +151,7 @@ class ControlLoop:
                 await self.observability.observe_machine_status_changed(
                     box_count=self.box_count,
                     machine_speed=self.motor.get_speed(),
-                    event="Error occurred",
+                    event="ErrorOccurred",
                     status=MachineStatus.ERROR
                 )
                 print(f"Error! {e}")
@@ -151,7 +167,7 @@ class ControlLoop:
         await self.observability.observe_machine_status_changed(
             box_count=self.box_count,
             machine_speed=self.motor.get_speed(),
-            event="Process Stopped",
+            event="Stopped",
             status=MachineStatus.STOPPED
         )
 
