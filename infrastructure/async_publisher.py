@@ -1,12 +1,13 @@
 import asyncio
 import datetime
 import json
-
+from typing import List
 
 import aiozmq
 import zmq
 
 from analytics.metric import MetricsRegistry
+from infrastructure.boblogger import LogMessage
 
 
 class AsyncPublisher:
@@ -50,6 +51,19 @@ class AsyncPublisher:
         self.pub.write([message.encode()])
         print(f"Published event: {message}")
 
+
+    async def flush_logs(self, logs: List[LogMessage]):
+
+        data = [log.to_dict() for log in logs]
+        event = {
+            "type": "flush_logs",
+            "data": data
+        }
+        message = json.dumps(event)
+
+        self.pub.write([message.encode()])
+        # print(f"Published event: {message}")
+
     async def flush_metrics(self, registry: MetricsRegistry):
         data = registry.get_metrics()
         event = {
@@ -59,3 +73,4 @@ class AsyncPublisher:
         message = json.dumps(event)
         self.pub.write([message.encode()])
         print(f"Published event: {message}")
+

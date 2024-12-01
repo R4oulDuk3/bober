@@ -24,6 +24,9 @@ def map_status_to_event(status: MachineStatus) -> MachineEvent:
 
 class InMemoryObservabilityController(IObservabilityController):
 
+    async def flush(self):
+        pass
+
     async def observe_system_info(self):
         pass
 

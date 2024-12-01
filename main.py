@@ -8,6 +8,7 @@ from implementations.in_memory_observability_controller import InMemoryObservabi
 from implementations.queued_observability_controller import QueuedObservabilityController
 from implementations.simple_motor_controller import SimpleMotorController
 from infrastructure.async_publisher import AsyncPublisher
+from infrastructure.boblogger import BobLogger
 from infrastructure.config_loader import ConfigLoader
 
 
@@ -30,17 +31,20 @@ async def main():
     async_publisher = AsyncPublisher(
         publish_address="tcp://127.0.0.1:5555"
     )
+    logger = BobLogger()
     await async_publisher.connect()
     control_loop = ControlLoop(
         motor=AdvancedMotorController(),
         sensor=IRSensorController(),
         observability=QueuedObservabilityController(
-            publisher=async_publisher
+            publisher=async_publisher,
+            logger=logger
         ),
         delay_millis=100,
         config_loader=ConfigLoader(
             config_path="config.json"
-        )
+        ),
+        logger=logger
     )
     try:
         await control_loop.run()

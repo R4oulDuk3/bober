@@ -2,6 +2,7 @@
 import asyncio
 import datetime
 import time
+import traceback
 
 # from analytics.analytics_client import produce_machine_iot_client
 from enums import MachineStatus
@@ -11,6 +12,7 @@ from implementations.queued_observability_controller import QueuedObservabilityC
 from infrastructure import config_loader
 from infrastructure.async_publisher import AsyncPublisher
 from infrastructure.config_loader import ConfigLoader
+from infrastructure.boblogger import BobLogger
 from interfaces.motor_interface import IMotorController
 from interfaces.observability_interface import IObservabilityController
 from interfaces.sensor_interface import ISensorController
@@ -22,8 +24,10 @@ class ControlLoop:
                  sensor: ISensorController,
                  observability: IObservabilityController,
                  config_loader: ConfigLoader,
+                 logger: BobLogger,
                  delay_millis: float):
         self.motor = motor
+        self.logger = logger
         self.sensor = sensor
         self.observability = observability
         self.box_count = 0
@@ -44,6 +48,7 @@ class ControlLoop:
         self.desired_speed = self.config_loader.get_speed()
         new_power_value = self.config_loader.is_power_on()
 
+
         if new_power_value != self.is_on:
             print(f"Machine power switched! [Previous {self.is_on}, current {new_power_value}]")
             self.is_on = new_power_value
@@ -51,12 +56,14 @@ class ControlLoop:
         # print(f"Updated desired speed to {self.desired_speed}")
 
     def handle_power_switch(self):
+
         if self.is_on and not self.motor.is_running():
             print("Turning the motor on!")
             self.motor.start_motor()
         elif not self.is_on and self.motor.is_running():
             print("Turning the motor off!")
             self.motor.stop_motor()
+
 
     def manage_speed(self):
 
@@ -67,11 +74,11 @@ class ControlLoop:
         if machine_speed == self.desired_speed:
             return
         elif machine_speed > self.desired_speed:
-            print(f"Desired speed is lesser then machine speed, slowing down... [machine speed: {machine_speed}, desired_speed: {self.desired_speed}]")
+            self.logger.info(f"Desired speed is lesser then machine speed, slowing down... [machine speed: {machine_speed}, desired_speed: {self.desired_speed}]")
             self.motor.slow_down()
         else:
             self.motor.speed_up()
-            print(f"Desired speed is greater then machine speed, speeding up... [machine speed: {machine_speed}, desired_speed: {self.desired_speed}]")
+            self.logger.info(f"Desired speed is greater then machine speed, speeding up... [machine speed: {machine_speed}, desired_speed: {self.desired_speed}]")
 
 
     async def try_send_telemetry(self):
@@ -87,7 +94,7 @@ class ControlLoop:
                 self.last_telemetry_timestamp = now.timestamp()
                 return True
             except Exception as e:
-                print(f"Error sending telemetry: {e}")
+                self.logger.error(f"Error sending telemetry: {e}")
                 return False
 
 
@@ -102,24 +109,27 @@ class ControlLoop:
         )
 
         box_visible_in_previous_cycle = False
-        print("Starting loop")
+        self.logger.debug("Starting loop")
         while self.is_running:
             try:
+
+
                 await self.try_reload_config()
                 self.handle_power_switch()
+
                 self.manage_speed()
                 box_visible_currently = self.sensor.is_box_visible()
 
                 # Detect rising edge on sensor 1 (new box detected)
                 if not box_visible_in_previous_cycle and box_visible_currently:
                     self.box_count += 1
-                    print("New box appeared")
+                    self.logger.debug("New box appeared")
 
                 box_visible_in_previous_cycle = box_visible_currently
 
-
                 await self.try_send_telemetry()
 
+                await self.observability.flush()
                 time.sleep(self.delay_millis / 1000)
             except Exception as e:
                 await self.observability.observe_machine_status_changed(
@@ -128,7 +138,9 @@ class ControlLoop:
                     event="Error occurred",
                     status=MachineStatus.ERROR
                 )
-                print(f"Error occurred {e}")
+                print(f"Error! {e}")
+                print(traceback.format_exc())
+                # self.logger.error(f"Error occurred {e}")
                 await self.stop()
 
 
@@ -150,16 +162,18 @@ async def main():
     async_publisher = AsyncPublisher(
         publish_address="tcp://127.0.0.1:5555"
     )
-
+    logger = BobLogger()
     await async_publisher.connect()
     control_loop = ControlLoop(
         motor=MockMotorController(),
         sensor=MockSensorController(),
         observability=QueuedObservabilityController(
-            publisher=async_publisher
+            publisher=async_publisher,
+            logger=logger
         ),
         delay_millis=500,
-        config_loader=ConfigLoader(config_path="../config.json")
+        config_loader=ConfigLoader(config_path="../config.json"),
+        logger=logger
     )
 
     try:

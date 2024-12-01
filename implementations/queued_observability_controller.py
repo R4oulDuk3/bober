@@ -5,11 +5,20 @@ from analytics.analytics_client import MachineIoTClient
 from analytics.metric import MetricsRegistry
 from enums import MachineStatus
 from infrastructure.async_publisher import AsyncPublisher
+from infrastructure.boblogger import BobLogger
 from interfaces.observability_interface import IObservabilityController
 from datetime import datetime
 
 class QueuedObservabilityController(IObservabilityController):
 
+
+
+    async def flush(self):
+        logs = self.logger.get_logs()[:]
+        self.logger.clear()
+
+        if len(logs) > 0:
+            await self.publisher.flush_logs(logs)
 
 
     async def observe_system_info(self):
@@ -34,7 +43,8 @@ class QueuedObservabilityController(IObservabilityController):
         })
 
 
-    def __init__(self, publisher: AsyncPublisher):
+    def __init__(self, publisher: AsyncPublisher, logger: BobLogger):
         self.publisher = publisher
         self.metrics_registry = MetricsRegistry()
+        self.logger = logger
 
