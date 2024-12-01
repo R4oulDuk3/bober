@@ -103,3 +103,44 @@ class MetricsRegistry:
         net_io = psutil.net_io_counters()
         self.inc_gauge("network_bytes_sent", net_io.bytes_sent)
         self.inc_gauge("network_bytes_recv", net_io.bytes_recv)
+
+
+if __name__ == "__main__":
+    try:
+        # Initialize registry
+        registry = MetricsRegistry()
+
+        print("Starting system metrics collection...")
+        print("Press Ctrl+C to stop\n")
+
+        # Continuous monitoring loop
+        while True:
+            registry.observe_system_metrics()
+            metrics = registry.get_metrics()
+
+            # Clear screen (optional - comment out if you don't want this)
+            print("\033[H\033[J")  # Clear screen
+
+            # Print current timestamp
+            from datetime import datetime
+
+            print(f"=== System Metrics at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===\n")
+
+            # Print metrics in a formatted way
+            for metric in sorted(metrics, key=lambda x: x['name']):
+                print(f"{metric['name']}:")
+                print(f"  Type: {metric['type']}")
+                print(f"  Value: {metric['value']}")
+                print()
+
+            # Wait before next collection
+            import time
+
+            time.sleep(5)  # Update every 5 seconds
+
+    except KeyboardInterrupt:
+        print("\nStopping metrics collection...")
+    except Exception as e:
+        print(f"\nAn error occurred: {str(e)}")
+    finally:
+        print("Metrics collection ended")
